@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for langserve-tutorial-blue-dew-1283 on 2024-08-04T21:27:07-04:00
+# fly.toml app configuration file generated for langserve-tutorial-still-silence-2837 on 2024-08-05T08:54:05-04:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'langserve-tutorial-blue-dew-1283'
+app = 'langserve-tutorial-still-silence-2837'
 primary_region = 'scl'
 
 [build]
