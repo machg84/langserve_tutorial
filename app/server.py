@@ -1,34 +1,65 @@
 from langchain_openai import OpenAI
-from langchain.prompts import PromptTemplate
 from fastapi import FastAPI
 from langserve import add_routes
 from dotenv import load_dotenv
+from langchain_qdrant import QdrantVectorStore
+from langchain_openai import OpenAIEmbeddings
+from langchain_core.prompts import ChatPromptTemplate
+from langchain.prompts import PromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+import os
 
 load_dotenv()
 
-summarization_assistant_template = """
-You are a text summarization bot. Your expertise is exclusively in analyzing and summarizing user-provided texts. 
-Create a concise and comprehensive summary of the provided text, retaining all crucial information in a 
-shorter form. Text for Summarization: {text_for_summarization}"""
+qdrant_api_key = os.getenv("QDRANT_API_KEY")
+qdrant_host = os.getenv("QDRANT_HOST")
 
-summarization_assistant_prompt = PromptTemplate(
-    input_variables=["text_for_summarization"],
-    template=summarization_assistant_template
-)
+embeddings = OpenAIEmbeddings()
 
 llm = OpenAI(model='gpt-3.5-turbo-instruct',
              temperature=0.5)
-llm_chain = summarization_assistant_prompt | llm
+
+qdrant = QdrantVectorStore.from_existing_collection(
+    api_key=qdrant_api_key,
+    collection_name="sample collection",
+    url=qdrant_host ,
+    embedding=embeddings
+)
+
+retriever = qdrant.as_retriever()
+
+prompt = ChatPromptTemplate.from_template("""You are an assistant for question-answering tasks.
+Use the following pieces of retrieved context to answer the question.
+If you don't know the answer, just say that you don't know.
+Use three sentences maximum and keep the answer concise.
+
+# Instructions
+- Answer in spanish
+
+Question: {question}
+
+Context: {context}""")
+
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | StrOutputParser()
+)
 
 app = FastAPI(
     title="LangChain Server",
     version="1.0",
-    description="Summarization App",
+    description="NCG 454 App",
 )
 
 add_routes(
     app,
-    llm_chain,
+    rag_chain,
     path="/openai"
 )
 
