@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for langserve-tutorial-still-silence-2837 on 2024-08-05T08:54:05-04:00
+# fly.toml app configuration file generated for langserve-tutorial-cmf on 2024-08-12T02:33:49-04:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'langserve-tutorial-still-silence-2837'
+app = 'langserve-tutorial-cmf'
 primary_region = 'scl'
 
 [build]

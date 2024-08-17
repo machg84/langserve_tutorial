@@ -5,3 +5,4 @@ langchain-openai
 langserve[all]
 python-dotenv==1.0.0
 langchain-qdrant
+qdrant_client
